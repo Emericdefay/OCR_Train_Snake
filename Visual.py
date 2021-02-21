@@ -5,8 +5,8 @@ class GameWindow:
     """
 
     """
-    WIDTH = 800
-    HEIGHT = WIDTH
+    WIDTH = 862
+    HEIGHT = 862
     """
     """
 
@@ -21,14 +21,16 @@ class GameWindow:
 
         self.window.fill((0, 0, 0))
 
-        self.lines = GameWindow.WIDTH // 100
-        self.columns = GameWindow.HEIGHT // 100
+        self.size_pixel = 25
 
         self.pixel = pygame.draw.rect(self.window, (0, 0, 0), (0, 0, 0, 0))
 
-        self.matrix = [[1 for i in range(32)] for j in range(32)]
+        self.matrix_field = [[1 for i in range(32)] for j in range(32)]
         self.position_x = 0
         self.position_y = 0
+
+        self.field_color = (10, 10, 10)
+
         pass
 
     def pixel_draw(self, position_x, position_y, color):
@@ -40,47 +42,42 @@ class GameWindow:
         :return:
         """
 
-        tuple_color = (color, color, color)
+        line = (self.size_pixel+2)*position_x
+        column = (self.size_pixel+2)*position_y
 
-        pygame.draw.rect(self.window, tuple_color, (position_x+2, position_y+2, 21, 21))
+        pygame.draw.rect(self.window, color, (line, column, self.size_pixel, self.size_pixel))
 
-    def field_draw(self, matrix):
+    def field_draw(self):
         """
 
-        :param matrix:
-        :return:
         """
-        position_x = 0
-        position_y = 0
-
-        for i in range(len(matrix)):
-            for j in range(len(matrix[i])):
-                if matrix[i][j] == 1:
-                    self.pixel_draw(position_x, position_y, 10)
-                    #print(i, ':', position_x, ";", j, ":", position_y)
-                position_x += 25
-            position_y += 25
-            position_x = 0
-
+        for i in range(len(self.matrix_field)):
+            for j in range(len(self.matrix_field[i])):
+                if self.matrix_field[i][j] == 1:
+                    self.pixel_draw(j, i, self.field_color)
         pass
 
-    def snake_draw(self, position_x, position_y):
+    def snake_parts_draw(self, position_x, position_y, snake_color):
         """
 
         :param position_x:
         :param position_y:
+        :param snake_color:
         :return:
         """
-        self.pixel_draw(position_x, position_y, 255)
 
-    def update(self):
+        self.pixel_draw(position_x, position_y, snake_color)
+
+    def fruit_draw(self, position_x, position_y, fruit_color):
         """
 
+        :param position_x:
+        :param position_y:
+        :param fruit_color:
         :return:
         """
-        self.position_x += 100
-        self.position_x % 800
-        pass
+
+        self.pixel_draw(position_x, position_y, fruit_color)
 
 
 def main():
@@ -88,11 +85,7 @@ def main():
 
     :return:
     """
-    a = GameWindow()
-    while True:
-        a.clock.tick(1)
-        a.field_draw(a.matrix)
-        pygame.display.flip()
+    pass
 
 
 if __name__ == "__main__":
