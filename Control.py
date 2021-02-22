@@ -17,6 +17,10 @@ class Control:
         self.fruit_position = [5, 5]
 
         self.snake_coordinates = [[15, 16], [16, 16], [17, 16], [18, 16]]
+        self.snake_move_parts = [[-1, 0], [-1, 0], [-1, 0], [-1, 0]]
+
+        self.snake_manager()
+
         pass
 
     def snake_manager(self):
@@ -27,28 +31,113 @@ class Control:
 
         pass
 
+    def snake_move_manager(self, movement):
+        """
+
+        :param movement:
+        :return:
+        """
+        self.snake_move_parts.insert(0, movement)
+        if len(self.snake_move_parts) > len(self.snake_coordinates):
+            self.snake_move_parts.pop()
+
+        for i in range(len(self.snake_coordinates)):
+            self.snake_coordinates[i][0] = self.snake_coordinates[i][0] + self.snake_move_parts[i][0]
+            self.snake_coordinates[i][1] = self.snake_coordinates[i][1] + self.snake_move_parts[i][1]
+
     def snake_move_forward(self):
         """
 
         :return:
         """
-        pass
+        # Left:
+        if self.snake_coordinates[1][0] - self.snake_coordinates[0][0] < 0:
+            self.snake_move_left()
+        # Right:
+        if self.snake_coordinates[1][0] - self.snake_coordinates[0][0] > 0:
+            self.snake_move_right()
+        # Up :
+        if self.snake_coordinates[1][1] - self.snake_coordinates[0][1] < 0:
+            self.snake_move_up()
+        # Down :
+        if self.snake_coordinates[1][1] - self.snake_coordinates[0][1] > 0:
+            self.snake_move_down()
 
-    def snake_turn(self):
+    def snake_move_left(self):
         """
 
         :return:
         """
-        pass
+
+        self.snake_move_manager([-1, 0])
+
+    def snake_move_right(self):
+        """
+
+        :return:
+        """
+
+        self.snake_move_manager([1, 0])
+
+    def snake_move_up(self):
+        """
+
+        :return:
+        """
+
+        self.snake_move_manager([0, -1])
+
+    def snake_move_down(self):
+        """
+
+        :return:
+        """
+
+        self.snake_move_manager([0, 1])
 
     def snake_grow(self):
         """
 
         :return:
         """
+        # Body -> Tail -> New_Part
+        if self.snake_coordinates[-2][0] - self.snake_coordinates[-1][0] < 0:
+            position_x = self.snake_coordinates[-1][0] + 1
+            position_y = self.snake_coordinates[-1][1]
+            self.snake_coordinates.append([position_x, position_y])
+
+        # New_Part <- Tail <- Body
+        if self.snake_coordinates[-2][0] - self.snake_coordinates[-1][0] > 0:
+            position_x = self.snake_coordinates[-1][0] - 1
+            position_y = self.snake_coordinates[-1][1]
+            self.snake_coordinates.append([position_x, position_y])
+        # Up :
+        if self.snake_coordinates[-2][1] - self.snake_coordinates[-1][1] < 0:
+            position_x = self.snake_coordinates[-1][0]
+            position_y = self.snake_coordinates[-1][1] + 1
+            self.snake_coordinates.append([position_x, position_y])
+        # Down :
+        if self.snake_coordinates[-2][1] - self.snake_coordinates[-1][1] > 0:
+            position_x = self.snake_coordinates[-1][0]
+            position_y = self.snake_coordinates[-1][1] - 1
+            self.snake_coordinates.append([position_x, position_y])
         pass
 
+    def get_snake_position(self):
+        """
+
+        :return:
+        """
+        return self.snake_coordinates[0]
+
     def fruit_manager(self):
+        """
+
+        :return:
+        """
+        pass
+
+    def update(self):
         """
 
         :return:
@@ -77,16 +166,33 @@ def main():
     for i in range(len(control_snake.snake_coordinates)):
         model_snake_list.append(Model.SnakePart(i))
 
+    truc = 0
+
     # 4. Game manager
     while True:
+        truc += 1
         # Configuration
-        visual_game.clock.tick(24)
+        visual_game.clock.tick(5)
         visual_game.field_draw()
-        # Initialization
-        visual_game.fruit_draw(1, 1, f2.color)
-        #
-        for serpents_parties in console.serpents_coord:
-            visual_game.snake_parts_draw(22, 2, s.snake_color)
+
+        # Fruit draw
+        visual_game.fruit_draw(1, 1, model_fruit_blueberry.color)
+
+        # Snake draw
+        for snake_coordinates_x, snake_coordinates_y in control_snake.snake_coordinates:
+            visual_game.snake_parts_draw(snake_coordinates_x, snake_coordinates_y, model_snake_list[0].snake_color)
+
+        #control_snake.snake_move_forward()
+        #control_snake.snake_move_up()
+
+        #debug
+        x = control_snake.get_snake_position()[0]
+        y = control_snake.get_snake_position()[1]
+
+        if truc > 4:
+            control_snake.snake_grow()
+            truc = 0
+        control_snake.snake_move_up()
 
         # Update
         pygame.display.flip()
