@@ -78,15 +78,3 @@ class GameWindow:
         """
 
         self.pixel_draw(position_x, position_y, fruit_color)
-
-
-def main():
-    """
-
-    :return:
-    """
-    pass
-
-
-if __name__ == "__main__":
-    main()

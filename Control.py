@@ -1,9 +1,10 @@
 # Libraries:
 # 1. built-in modules
 import sys
+import random
 # 2. required modules
 import pygame
-# 3. projects
+# 3. projects modules
 import Model
 import Visual
 
@@ -16,7 +17,7 @@ class Control:
         """
 
         """
-        self.fruit_position = [5, 5]
+        self.fruit_position = []
 
         self.snake_coordinates = [[16, 15], [16, 16], [17, 16], [18, 16]]
         self.snake_move_parts = [[0, -1], [-1, 0], [-1, 0], [-1, 0]]
@@ -34,7 +35,6 @@ class Control:
         self.snake_move_parts.insert(0, movement)
         if len(self.snake_move_parts) > len(self.snake_coordinates):
             self.snake_move_parts.pop()
-            pass
 
         self.snake_tail = self.snake_coordinates[-1].copy()
 
@@ -102,14 +102,21 @@ class Control:
         """
         self.snake_action = False
 
-    def fruit_manager(self):
+    def fruit_spawner(self):
         """
 
         :return:
         """
-        pass
+        fruit_pos_x = random.randint(0, 31)
+        fruit_pos_y = random.randint(0, 31)
 
-    def update(self):
+        for snake_pos_x, snake_pos_y in self.snake_coordinates:
+            if snake_pos_x == fruit_pos_x and snake_pos_y == fruit_pos_y:
+                self.fruit_spawner()
+
+        self.fruit_position = [fruit_pos_x, fruit_pos_y]
+
+    def eat(self):
         """
 
         :return:
@@ -132,17 +139,19 @@ def main():
     model_fruit_leaf = Model.Fruits(1)
     model_fruit_blueberry = Model.Fruits(2)
 
+
     # 3. Snake
     model_snake_list = []
     control_snake = Control()
     for i in range(len(control_snake.snake_coordinates)):
         model_snake_list.append(Model.SnakePart(i))
 
+    # 4. Fruit init
+    control_snake.fruit_spawner()
+
     # 4. Game manager
-    truc = 0
     while True:
         print("-------------------------------------")
-        truc +=1
         # Configuration
         visual_game.clock.tick(5)
         visual_game.field_draw()
@@ -171,16 +180,18 @@ def main():
 
         # print(control_snake.snake_action)
         # print(control_snake.snake_coordinates)
-        if truc > 3:
+        if control_snake.get_snake_position() == control_snake.fruit_position:
             control_snake.snake_grow()
-            truc = 0
+            control_snake.fruit_spawner()
 
         if not control_snake.snake_action:
             control_snake.snake_move_forward()
             pass
 
         # Fruit draw
-        # visual_game.fruit_draw(1, 1, model_fruit_blueberry.color)
+        fruit_x = control_snake.fruit_position[0]
+        fruit_y = control_snake.fruit_position[1]
+        visual_game.fruit_draw(fruit_x, fruit_y, model_fruit_blueberry.color)
 
         # Snake draw
         for snake_coordinates_x, snake_coordinates_y in control_snake.snake_coordinates:
