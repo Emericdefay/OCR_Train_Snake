@@ -99,10 +99,3 @@ class SnakePart:
         self.snake_color = (255, 255, 255)
 
         pass
-
-    def die(self):
-        """
-        DESCRIPTION
-        """
-
-        pass

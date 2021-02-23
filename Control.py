@@ -11,7 +11,7 @@ import Visual
 
 class Control:
     """
-
+    Control the eve
     """
     def __init__(self):
         """
