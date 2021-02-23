@@ -17,15 +17,13 @@ class Control:
         """
 
         """
-        self.fruit_position = []
-
         self.snake_coordinates = [[16, 15], [16, 16], [17, 16], [18, 16]]
         self.snake_move_parts = [[0, -1], [-1, 0], [-1, 0], [-1, 0]]
+
         self.snake_tail = []
+        self.fruit_position = []
 
         self.snake_action = False
-
-        pass
 
     def snake_move_manager(self, movement):
         """
@@ -116,31 +114,37 @@ class Control:
 
         self.fruit_position = [fruit_pos_x, fruit_pos_y]
 
-    def eat(self):
+    def die(self):
         """
 
         :return:
         """
-        pass
+        if self.get_snake_position() in self.snake_coordinates[1:]:
+            return True
+        if self.get_snake_position()[0] < 0 or self.get_snake_position()[0] > 31:
+            return True
+        if self.get_snake_position()[1] < 0 or self.get_snake_position()[1] > 31:
+            return True
+        return False
 
 
-def main():
+def start():
     """
 
     :return:
     """
     # Initialisation
-    # 1. Game window
+    # 1. Game window init
     visual_game = Visual.GameWindow()
     visual_game.field_draw()
+    run = True
 
-    # 2. Fruits models
+    # 2. Fruits models init
     model_fruit_apple = Model.Fruits(0)
     model_fruit_leaf = Model.Fruits(1)
     model_fruit_blueberry = Model.Fruits(2)
 
-
-    # 3. Snake
+    # 3. Snake init
     model_snake_list = []
     control_snake = Control()
     for i in range(len(control_snake.snake_coordinates)):
@@ -149,19 +153,25 @@ def main():
     # 4. Fruit init
     control_snake.fruit_spawner()
 
-    # 4. Game manager
-    while True:
-        print("-------------------------------------")
+    # 5. Game runner
+    while run:
         # Configuration
         visual_game.clock.tick(5)
         visual_game.field_draw()
 
+        # Exit
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 run = False
                 sys.exit()
 
+        # Eat event
+        if control_snake.get_snake_position() == control_snake.fruit_position:
+            control_snake.snake_grow()
+            control_snake.fruit_spawner()
+
+        # Keys event
         keys = pygame.key.get_pressed()
 
         if not control_snake.snake_action:
@@ -178,32 +188,34 @@ def main():
                 control_snake.snake_action = True
                 control_snake.snake_move_down()
 
-        # print(control_snake.snake_action)
-        # print(control_snake.snake_coordinates)
-        if control_snake.get_snake_position() == control_snake.fruit_position:
-            control_snake.snake_grow()
-            control_snake.fruit_spawner()
-
+        # Keys non-event
         if not control_snake.snake_action:
             control_snake.snake_move_forward()
-            pass
+
+        # Game lost
+        if control_snake.die():
+            font = pygame.font.SysFont("comicsans", 100)
+            text = font.render("You died.", 1, (255, 0, 0))
+            visual_game.window.blit(text, (visual_game.WIDTH//2, visual_game.HEIGHT//2))
+            pygame.display.flip()
+            pygame.time.wait(2000)
+            start()
 
         # Fruit draw
         fruit_x = control_snake.fruit_position[0]
         fruit_y = control_snake.fruit_position[1]
-        visual_game.fruit_draw(fruit_x, fruit_y, model_fruit_blueberry.color)
+        visual_game.fruit_draw(fruit_x, fruit_y, model_fruit_apple.color)
 
         # Snake draw
         for snake_coordinates_x, snake_coordinates_y in control_snake.snake_coordinates:
             visual_game.snake_parts_draw(snake_coordinates_x, snake_coordinates_y, model_snake_list[0].snake_color)
 
-        print(control_snake.snake_coordinates)
-        print(control_snake.snake_tail)
-
+        # Move done
         control_snake.snake_action_done()
+
         # Update
         pygame.display.flip()
 
 
 if __name__ == '__main__':
-    main()
+    start()
